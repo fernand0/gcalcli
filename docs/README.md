@@ -10,7 +10,7 @@ annoying ICS/vCal invites from Microsoft Exchange and/or other sources.
 Additionally, gcalcli can be used as a reminder service and execute any
 application you want when an event is coming up.
 
-Check your OS distribution for packages.
+gcalcli uses the [Google Calendar API version 3](https://developers.google.com/google-apps/calendar/).
 
 Requirements
 ------------
@@ -18,16 +18,41 @@ Requirements
 * [Python 2](http://www.python.org)
 * [Google API Client](https://developers.google.com/api-client-library/python) Python 2 module
 * [dateutil](http://www.labix.org/python-dateutil) Python 2 module
+* [gflags](https://code.google.com/p/python-gflags/) Python 2 module
 * A love for the command line!
 
 ### Optional packages
-* [vobject](http://vobject.skyhouseconsulting.com) Python module
 
-    Used for ics/vcal importing.
+* [vobject](http://vobject.skyhouseconsulting.com) Python module  
+  Used for ics/vcal importing.
+* [parsedatetime](http://github.com/bear/parsedatetime) Python module  
+  Used for fuzzy dates/times like "now", "today", "eod tomorrow", etc.
 
-* [parsedatetime](http://github.com/bear/parsedatetime) Python module
 
-    Used for fuzzy dates/times like "now", "today", "eod tomorrow", etc.
+Installation
+------------
+
+Check your OS distribution for packages.
+
+### Install from PyPI
+
+```sh
+pip install gcalcli
+```
+
+### Install from source
+
+```sh
+git clone https://github.com/insanum/gcalcli.git
+cd gcalcli
+python setup.py install
+```
+
+### Install optional packages
+
+```sh
+pip install vobject parsedatetime
+```
 
 Features
 --------
@@ -53,11 +78,15 @@ Features
 Screenshots
 -----------
 
-![gcalcli](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_5.png)
-![gcalcli](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_1.png)
-![gcalcli](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_2.png)
-![gcalcli](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_3.png)
-![gcalcli](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_4.png)
+![gcalcli 5](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_5.png)
+
+![gcalcli 1](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_1.png)
+
+![gcalcli 2](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_2.png)
+
+![gcalcli 3](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_3.png)
+
+![gcalcli 4](https://github.com/insanum/gcalcli/raw/master/docs/gcalcli_4.png)
 
 HowTo
 -----
@@ -83,11 +112,11 @@ gcalcli [options] command [command args]
                            'calendar' to work with (default is all calendars)
                            - you can specify a calendar by name or by substring
                              which can match multiple calendars
-                           - you can use multiple '--cal' arguments on the
+                           - you can use multiple '--calendar' arguments on the
                              command line for the query commands
                            - an optional color override can be specified per
                              calendar using the ending hashtag:
-                               --cal "Eric Davis"#green --cal foo#red
+                               --calendar "Eric Davis"#green --calendar foo#red
 
   --[no]military           show all dates in 24 hour format (default = False)
 
@@ -227,7 +256,7 @@ gcalcli [options] command [command args]
                              events, just like the 'search' command
                            - editing is interactive
 
-  import [-v] [file]       import an ics/vcal file to a calendar
+  import [-v|-d] [file]    import an ics/vcal file to a calendar
                            - a single --calendar must specified
                            - if a file is not specified then the data is read
                              from standard input
@@ -235,6 +264,9 @@ gcalcli [options] command [command args]
                              displayed and you're given the option to import
                              or skip it, by default everything is imported
                              quietly without any interaction
+                           - if -d is given then each event in the file is
+                             displayed and not imported, a --calendar does
+                             not need to be specified for this option
 
   remind <mins> <command>  execute command if event occurs within <mins>
                            minutes time ('%s' in <command> is replaced with
@@ -269,6 +301,20 @@ Note that these environment variables must be lowercase.
 gcalcli is able to read default configuration information from a flag file.
 This file is located, by default, at '~/.gcalclirc'.  The flag file takes one
 command line parameter per line.
+
+Example:
+
+```
+--military
+--duration=55
+--details=calendar
+--details=location
+--details=length
+-w 10
+```
+
+Note that long options require an equal sign if specifying a parameter.  With
+short options the equal sign is optional.
 
 #### Configuration Folders
 
@@ -324,7 +370,7 @@ in via X:
 
 [[ -x /usr/bin/dunst ]] && /usr/bin/dunst -config ~/.dunstrc &
 
-if [ -x /usr/bin/gcalcli ]; then 
+if [ -x /usr/bin/gcalcli ]; then
   while true; do
     /usr/bin/gcalcli --calendar="davis" remind
     sleep 300
@@ -356,6 +402,9 @@ To also get a graphical calendar that shows the next three weeks add:
 ```
 ${execpi 300 gcalcli --conky calw 3}
 ```
+
+You may need to increase the `text_buffer_size` in your conkyrc file.  Users
+have reported that the default of 256 bytes is too small for busy calendars.
 
 #### Agenda Integration With tmux
 
@@ -398,4 +447,3 @@ is!):
 backtick 1 60 60 screen_agenda
 hardstatus "[ %1` ]"
 ```
-
