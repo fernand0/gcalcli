@@ -367,7 +367,7 @@ class gcalcli:
     allEvents     = []
     cals          = []
     now           = datetime.now(tzlocal())
-    agendaLength  = 5
+    agendaLength  = 7
     authHttp      = None
     calService    = None
     urlService    = None
@@ -1347,7 +1347,7 @@ class gcalcli:
             return
 
         timeFormat = '%l:%M'
-        isoTimeFormat = '%Y-%M-%dT%H:%M'
+        isoTimeFormat = '%Y-%M-%d %H:%M'
         dayFormat = '%A %d, %H:%M' # 10 chars for day
         indent = '          ' # 10 spaces
         detailsIndent = '                   '    # 19 spaces
@@ -1358,23 +1358,27 @@ class gcalcli:
             tmpDayStp  = event['e'].strftime('%F')
             tmpTimeStr = event['s'].strftime("%H:%M")
             tmpTimeStp = event['e'].strftime("%H:%M")
-            tmpISOTimeStr = event['e'].strftime(isoTimeFormat)
+            tmpISOTimeStr = event['s'].strftime(isoTimeFormat)
             tmpWhere = ''
             if 'description' in event and event['description'].strip():
                 tmpContent = event['description'].strip()
 
             if 'location' in event and event['location'].strip():
-                tmpLocStr = "Lugar: %s\n" % (event['location']) 
+                tmpLocStr = "Lugar: %s" % (event['location'].strip()) 
             else: 
-                tmpLocStr = "Lugar: %s\n" % ""
+                tmpLocStr = "Lugar: %s" % " "
 
             #try:
             #   lines=event.content.text.splitlines() 
             #except:
             #   lines="hola\nadios\noeoeoe".splitlines() 
-            descr=event['description']
+            try:
+                descr=event['description']
+            except:
+                descr=""
 
             tmpDescStr="" 
+            url=""
             i=0
             if len(descr.split("\n"))>1:
                 for line in descr.split("\n"):
@@ -1387,10 +1391,10 @@ class gcalcli:
             if (tmpDayStr != day): day = prefix = tmpDayStr 
 
 
-            xstr = "\n<div id='hcalendar-%s' class='vevent'><abbr title='%s'  class='dtstart'>%s</abbr> <a href='%s' class='url'><span class='summary'>%s</span>\n<span class='location'>%s</span></a>\n<span class='description'>%s</span>\n</div>\n\n" % ( 
-			tmpISOTimeStr,
+            xstr = "\n<div class='h-event'><time class='dt-start' datetime='%s'>%s, %s</time> <a class='u-url' href='%s'><span class='p-name'>%s</span> <span class='p-location'>%s</span></a>\n<span class='p-description'>%s</span>\n</div>\n\n" % ( 
 			    tmpISOTimeStr,
 				tmpDayStr,
+				tmpTimeStr,
 				url,
                 self._ValidTitle(event).strip(),
 				tmpLocStr,
